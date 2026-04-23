@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NestFind — Search Results</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Sora',sans-serif; background:#f0ede8; min-height:100vh; color:#1a1a2e; }
+
+    nav { background:#fff; padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.06); position:sticky; top:0; z-index:100; }
+    .logo { font-size:1.5rem; font-weight:700; color:#1a1a2e; text-decoration:none; }
+    .logo span { color:#c9a84c; }
+    .nav-links { display:flex; align-items:center; gap:28px; }
+    .nav-links a { text-decoration:none; font-size:0.88rem; font-weight:500; color:#666; transition:color 0.2s; }
+    .nav-links a:hover { color:#c9a84c; }
+    .btn-post { background:#1a1a2e; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-post:hover { background:#c9a84c; }
+    .nav-avatar { width:36px; height:36px; background:#f0ede8; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; border:2px solid #e0dbd2; font-weight:700; }
+
+    /* ── SEARCH BAR ── */
+    .search-strip { background:#1a1a2e; padding:20px 40px; }
+    .search-bar { background:#fff; border-radius:12px; padding:6px; display:flex; align-items:center; gap:6px; max-width:860px; margin:0 auto; }
+    .search-bar input { flex:1; border:none; outline:none; font-family:'Sora',sans-serif; font-size:0.9rem; color:#1a1a2e; padding:8px 12px; background:transparent; }
+    .search-bar select { border:none; outline:none; font-family:'Sora',sans-serif; font-size:0.82rem; color:#666; background:#f0ede8; border-radius:8px; padding:8px 10px; cursor:pointer; }
+    .btn-search { background:#c9a84c; color:#fff; border:none; padding:10px 22px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .btn-search:hover { background:#b8923e; }
+
+    /* ── PAGE ── */
+    .page { max-width:1200px; margin:0 auto; padding:28px 24px 60px; display:grid; grid-template-columns:280px 1fr; gap:24px; align-items:start; }
+    @media (max-width:900px) { .page { grid-template-columns:1fr; } .filter-panel { display:none; } }
+
+    /* ── FILTER PANEL ── */
+    .filter-panel { background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,0.05); position:sticky; top:80px; }
+    .filter-section { margin-bottom:22px; }
+    .filter-section:last-child { margin-bottom:0; }
+    .filter-title { font-size:0.74rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#bbb; margin-bottom:12px; }
+    .filter-btn { display:block; width:100%; text-align:left; padding:8px 12px; border:1.5px solid #ece8e0; border-radius:8px; background:#faf9f7; font-family:'Sora',sans-serif; font-size:0.82rem; color:#666; cursor:pointer; margin-bottom:6px; transition:all 0.15s; }
+    .filter-btn.active { border-color:#c9a84c; background:#fff8ec; color:#1a1a2e; font-weight:600; }
+    .filter-btn:hover { border-color:#c9a84c; }
+    .price-inputs { display:flex; gap:8px; align-items:center; }
+    .price-inputs input { flex:1; padding:8px 10px; border:1.5px solid #ece8e0; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.82rem; color:#1a1a2e; background:#faf9f7; outline:none; }
+    .price-inputs input:focus { border-color:#c9a84c; }
+    .price-inputs span { color:#bbb; font-size:0.8rem; }
+    .btn-apply { width:100%; margin-top:8px; padding:9px; background:#1a1a2e; color:#fff; border:none; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.82rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-apply:hover { background:#c9a84c; }
+    .btn-clear { width:100%; margin-top:6px; padding:8px; background:transparent; color:#aaa; border:1px solid #ece8e0; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
+    .btn-clear:hover { color:#e05656; border-color:#fcc; }
+
+    /* ── RESULTS ── */
+    .results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+    .result-count { font-size:0.87rem; font-weight:600; color:#555; }
+    .result-count span { color:#c9a84c; }
+    .sort-row { display:flex; align-items:center; gap:8px; }
+    .sort-row label { font-size:0.78rem; color:#aaa; }
+    .sort-row select { padding:7px 12px; border:1.5px solid #ece8e0; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.82rem; color:#666; background:#fff; outline:none; cursor:pointer; }
+
+    /* ── VIEW TOGGLE ── */
+    .view-btns { display:flex; gap:4px; }
+    .view-btn { width:32px; height:32px; border:1.5px solid #ece8e0; border-radius:8px; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.9rem; transition:all 0.15s; }
+    .view-btn.active { background:#1a1a2e; border-color:#1a1a2e; color:#fff; }
+
+    /* ── PROPERTY CARD (list) ── */
+    .prop-list { display:flex; flex-direction:column; gap:16px; }
+    .prop-card-h { background:#fff; border-radius:16px; overflow:hidden; display:flex; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+    .prop-card-h:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+    .prop-img-h { width:220px; min-height:160px; background:#1a1a2e; display:flex; align-items:center; justify-content:center; font-size:3rem; overflow:hidden; flex-shrink:0; position:relative; }
+    .prop-img-h img { width:100%; height:100%; object-fit:cover; }
+    .prop-badge { position:absolute; top:10px; left:10px; padding:4px 10px; border-radius:6px; font-size:0.72rem; font-weight:700; }
+    .badge-sale { background:#fff8ec; color:#c9a84c; }
+    .badge-rent { background:#eef8f0; color:#27a854; }
+    .badge-pg   { background:#eef3ff; color:#4a6cf7; }
+    .prop-body-h { padding:18px; flex:1; display:flex; flex-direction:column; justify-content:space-between; }
+    .ph-top .prop-title { font-size:0.97rem; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
+    .ph-top .prop-loc { font-size:0.78rem; color:#aaa; margin-bottom:12px; }
+    .prop-specs { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
+    .ps { display:flex; align-items:center; gap:5px; font-size:0.78rem; color:#666; }
+    .ph-bottom { display:flex; align-items:center; justify-content:space-between; }
+    .prop-price { font-size:1.05rem; font-weight:700; color:#c9a84c; }
+    .prop-date { font-size:0.72rem; color:#ccc; }
+    .btn-view { padding:8px 18px; background:#1a1a2e; color:#fff; border:none; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.78rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-view:hover { background:#c9a84c; }
+
+    /* ── PROPERTY CARD (grid) ── */
+    .prop-grid-view { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+    @media (max-width:700px) { .prop-grid-view { grid-template-columns:1fr; } }
+    .prop-card-v { background:#fff; border-radius:16px; overflow:hidden; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+    .prop-card-v:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+    .prop-img-v { height:170px; background:#1a1a2e; display:flex; align-items:center; justify-content:center; font-size:3rem; overflow:hidden; position:relative; }
+    .prop-img-v img { width:100%; height:100%; object-fit:cover; }
+    .prop-body-v { padding:16px; }
+    .prop-body-v .prop-title { font-size:0.9rem; font-weight:700; color:#1a1a2e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
+    .prop-body-v .prop-loc { font-size:0.75rem; color:#aaa; margin-bottom:10px; }
+    .prop-body-v .ph-bottom { display:flex; align-items:center; justify-content:space-between; }
+    .prop-body-v .prop-price { font-size:0.97rem; font-weight:700; color:#c9a84c; }
+    .prop-body-v .prop-meta { font-size:0.72rem; color:#bbb; }
+
+    /* ── EMPTY ── */
+    .empty-state { text-align:center; padding:60px 20px; }
+    .empty-state .ei { font-size:3rem; margin-bottom:16px; }
+    .empty-state h3 { font-size:1.1rem; font-weight:700; margin-bottom:8px; }
+    .empty-state p { font-size:0.85rem; color:#aaa; }
+
+    /* ── PAGINATION ── */
+    .pagination { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:28px; }
+    .page-btn { width:36px; height:36px; border:1.5px solid #ece8e0; border-radius:8px; background:#fff; font-family:'Sora',sans-serif; font-size:0.82rem; font-weight:600; color:#666; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+    .page-btn.active { background:#1a1a2e; border-color:#1a1a2e; color:#fff; }
+    .page-btn:hover:not(.active) { border-color:#c9a84c; color:#c9a84c; }
+
+    footer { background:#1a1a2e; color:rgba(255,255,255,0.5); text-align:center; padding:24px; font-size:0.8rem; }
+    footer span { color:#c9a84c; }
+    @media (max-width:600px) { nav { padding:0 20px; } .search-strip { padding:16px 20px; } .prop-img-h { width:130px; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="home.html" class="logo">Nest<span>Find</span></a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="#">Buy</a>
+      <a href="#">Rent</a>
+      <a href="#">Sell</a>
+      <button class="btn-post" onclick="window.location.href='post-property.html'">+ Post Property</button>
+      <div class="nav-avatar" id="nav-av">👤</div>
+    </div>
+  </nav>
+
+  <!-- SEARCH STRIP -->
+  <div class="search-strip">
+    <div class="search-bar">
+      <input type="text" id="q" placeholder="🔍  Search by city, locality or title..." />
+      <select id="f-type">
+        <option value="">All Types</option>
+        <option>Apartment</option>
+        <option>Independent House</option>
+        <option>Villa</option>
+        <option>Plot</option>
+        <option>PG / Hostel</option>
+        <option>Commercial</option>
+      </select>
+      <select id="f-lt">
+        <option value="">Buy &amp; Rent</option>
+        <option value="Sale">For Sale</option>
+        <option value="Rent">For Rent</option>
+        <option value="PG">PG / Hostel</option>
+      </select>
+      <button class="btn-search" onclick="applySearch()">Search</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="page">
+
+    <!-- FILTER PANEL -->
+    <aside class="filter-panel">
+      <div class="filter-section">
+        <div class="filter-title">Listing Type</div>
+        <button class="filter-btn active" data-lt="" onclick="setLT(this)">All</button>
+        <button class="filter-btn" data-lt="Sale" onclick="setLT(this)">For Sale</button>
+        <button class="filter-btn" data-lt="Rent" onclick="setLT(this)">For Rent</button>
+        <button class="filter-btn" data-lt="PG" onclick="setLT(this)">PG / Hostel</button>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">Property Type</div>
+        <button class="filter-btn" data-type="" onclick="setType(this)">All Types</button>
+        <button class="filter-btn" data-type="Apartment" onclick="setType(this)">Apartment</button>
+        <button class="filter-btn" data-type="Independent House" onclick="setType(this)">Independent House</button>
+        <button class="filter-btn" data-type="Villa" onclick="setType(this)">Villa</button>
+        <button class="filter-btn" data-type="Plot" onclick="setType(this)">Plot</button>
+        <button class="filter-btn" data-type="Commercial" onclick="setType(this)">Commercial</button>
+        <button class="filter-btn" data-type="PG / Hostel" onclick="setType(this)">PG / Hostel</button>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">Budget (₹ Lakhs)</div>
+        <div class="price-inputs">
+          <input type="number" id="price-min" placeholder="Min" min="0" />
+          <span>–</span>
+          <input type="number" id="price-max" placeholder="Max" min="0" />
+        </div>
+        <button class="btn-apply" onclick="render()">Apply</button>
+        <button class="btn-clear" onclick="clearFilters()">Clear all filters</button>
+      </div>
+    </aside>
+
+    <!-- RESULTS -->
+    <div>
+      <div class="results-header">
+        <div class="result-count" id="result-count">Loading...</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div class="sort-row">
+            <label>Sort by</label>
+            <select id="sort-by" onchange="render()">
+              <option value="newest">Newest first</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+            </select>
+          </div>
+          <div class="view-btns">
+            <button class="view-btn active" id="vb-list" onclick="setView('list')" title="List view">☰</button>
+            <button class="view-btn" id="vb-grid" onclick="setView('grid')" title="Grid view">⊞</button>
+          </div>
+        </div>
+      </div>
+      <div id="results-container"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <footer><p>© 2025 <span>NestFind</span> — Buy, Sell &amp; Rent Properties with Ease</p></footer>
+
+  <script src="auth.js"></script>
+  <script>
+    NF.updateNav();
+
+    const PER_PAGE = 8;
+    let currentPage = 1;
+    let currentView = 'list'; // or 'grid'
+    let filters = { q:'', lt:'', type:'' };
+
+    /* ── URL PARAMS ── */
+    const params = new URLSearchParams(location.search);
+    if (params.get('q'))    { document.getElementById('q').value = params.get('q');   filters.q = params.get('q'); }
+    if (params.get('type')) { document.getElementById('f-type').value = params.get('type'); filters.type = params.get('type'); }
+    if (params.get('lt'))   { document.getElementById('f-lt').value = params.get('lt'); filters.lt = params.get('lt'); }
+
+    /* ── HELPERS ── */
+    function fmtPrice(p) {
+      if (p >= 10000000) return '₹' + (p/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
+      if (p >= 100000)   return '₹' + (p/100000).toFixed(2).replace(/\.?0+$/,'') + ' L';
+      return '₹' + p.toLocaleString('en-IN');
+    }
+    function fmtDate(ts) {
+      const d = Date.now() - ts;
+      if (d < 86400000) return 'Today';
+      if (d < 172800000) return 'Yesterday';
+      return new Date(ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    }
+    const typeIcon = t => ({Apartment:'🏢',Villa:'🏖️',Plot:'🏗️',Commercial:'🏬','PG / Hostel':'🛏️'}[t]||'🏠');
+
+    function badgeHTML(lt) {
+      const map = {Sale:['badge-sale','For Sale'],Rent:['badge-rent','For Rent'],PG:['badge-pg','PG']};
+      const [cls,lbl] = map[lt] || ['badge-sale','For Sale'];
+      return `<span class="prop-badge ${cls}">${lbl}</span>`;
+    }
+
+    /* ── FILTER HELPERS ── */
+    function setLT(btn) {
+      document.querySelectorAll('[data-lt]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filters.lt = btn.dataset.lt;
+      currentPage = 1; render();
+    }
+    function setType(btn) {
+      document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filters.type = btn.dataset.type;
+      currentPage = 1; render();
+    }
+    function applySearch() {
+      filters.q    = document.getElementById('q').value.trim().toLowerCase();
+      filters.lt   = document.getElementById('f-lt').value;
+      filters.type = document.getElementById('f-type').value;
+      currentPage  = 1; render();
+    }
+    function clearFilters() {
+      filters = { q:'', lt:'', type:'' };
+      document.getElementById('q').value = '';
+      document.getElementById('f-type').value = '';
+      document.getElementById('f-lt').value = '';
+      document.getElementById('price-min').value = '';
+      document.getElementById('price-max').value = '';
+      document.querySelectorAll('[data-lt]').forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-lt=""]').classList.add('active');
+      document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-type=""]').classList.add('active');
+      currentPage = 1; render();
+    }
+    function setView(v) {
+      currentView = v;
+      document.getElementById('vb-list').classList.toggle('active', v==='list');
+      document.getElementById('vb-grid').classList.toggle('active', v==='grid');
+      render();
+    }
+
+    /* ── RENDER ── */
+    function render() {
+      let props = NF.getProperties();
+
+      // Filter
+      if (filters.q)    props = props.filter(p =>
+        p.title.toLowerCase().includes(filters.q) ||
+        p.city.toLowerCase().includes(filters.q) ||
+        (p.locality||'').toLowerCase().includes(filters.q) ||
+        (p.description||'').toLowerCase().includes(filters.q)
+      );
+      if (filters.lt)   props = props.filter(p => p.listingType === filters.lt);
+      if (filters.type) props = props.filter(p => p.type === filters.type);
+      const pMin = parseFloat(document.getElementById('price-min').value) * 100000;
+      const pMax = parseFloat(document.getElementById('price-max').value) * 100000;
+      if (pMin) props = props.filter(p => p.price >= pMin);
+      if (pMax) props = props.filter(p => p.price <= pMax);
+
+      // Sort
+      const sort = document.getElementById('sort-by').value;
+      if (sort === 'price-asc')  props.sort((a,b) => a.price - b.price);
+      if (sort === 'price-desc') props.sort((a,b) => b.price - a.price);
+      if (sort === 'newest')     props.sort((a,b) => b.postedAt - a.postedAt);
+
+      // Count
+      document.getElementById('result-count').innerHTML =
+        `<span>${props.length}</span> propert${props.length===1?'y':'ies'} found` +
+        (filters.q ? ` for "<span>${filters.q}</span>"` : '');
+
+      // Paginate
+      const total = props.length;
+      const pages = Math.ceil(total / PER_PAGE);
+      const paginated = props.slice((currentPage-1)*PER_PAGE, currentPage*PER_PAGE);
+
+      // Render cards
+      const container = document.getElementById('results-container');
+      if (!total) {
+        container.innerHTML = `<div class="empty-state">
+          <div class="ei">🔍</div>
+          <h3>No properties found</h3>
+          <p>Try adjusting your search or filters</p>
+        </div>`;
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      if (currentView === 'list') {
+        container.innerHTML = `<div class="prop-list">${paginated.map(hCard).join('')}</div>`;
+      } else {
+        container.innerHTML = `<div class="prop-grid-view">${paginated.map(vCard).join('')}</div>`;
+      }
+
+      // Pagination
+      if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+      let pHtml = '';
+      if (currentPage > 1) pHtml += `<button class="page-btn" onclick="goPage(${currentPage-1})">‹</button>`;
+      for (let i=1; i<=pages; i++) pHtml += `<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+      if (currentPage < pages) pHtml += `<button class="page-btn" onclick="goPage(${currentPage+1})">›</button>`;
+      document.getElementById('pagination').innerHTML = pHtml;
+    }
+
+    function goPage(n) { currentPage = n; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+    function hCard(p) {
+      const imgHTML = p.photos && p.photos[0]
+        ? `<img src="${p.photos[0]}" alt="${p.title}" />`
+        : typeIcon(p.type);
+      return `<div class="prop-card-h" onclick="window.location.href='property.html?id=${p.id}'">
+        <div class="prop-img-h">${imgHTML}${badgeHTML(p.listingType)}</div>
+        <div class="prop-body-h">
+          <div class="ph-top">
+            <div class="prop-title">${p.title}</div>
+            <div class="prop-loc">📍 ${[p.locality,p.city].filter(Boolean).join(', ')}</div>
+            <div class="prop-specs">
+              ${p.type ? `<div class="ps">🏢 ${p.type}</div>` : ''}
+              ${p.bhk  ? `<div class="ps">🛏️ ${p.bhk}</div>`  : ''}
+              ${p.area ? `<div class="ps">📐 ${p.area} sq ft</div>` : ''}
+            </div>
+          </div>
+          <div class="ph-bottom">
+            <div>
+              <div class="prop-price">${fmtPrice(p.price)}</div>
+              <div class="prop-date">${fmtDate(p.postedAt)}</div>
+            </div>
+            <button class="btn-view">View Details →</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function vCard(p) {
+      const imgHTML = p.photos && p.photos[0]
+        ? `<img src="${p.photos[0]}" alt="${p.title}" />`
+        : typeIcon(p.type);
+      return `<div class="prop-card-v" onclick="window.location.href='property.html?id=${p.id}'">
+        <div class="prop-img-v">${imgHTML}${badgeHTML(p.listingType)}</div>
+        <div class="prop-body-v">
+          <div class="prop-title">${p.title}</div>
+          <div class="prop-loc">📍 ${[p.locality,p.city].filter(Boolean).join(', ')}</div>
+          <div class="ph-bottom">
+            <span class="prop-price">${fmtPrice(p.price)}</span>
+            <span class="prop-meta">${p.bhk||p.type}</span>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NestFind — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      background: #f0ede8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+      animation: fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .logo { font-size:1.7rem; font-weight:700; color:#1a1a2e; margin-bottom:6px; cursor:pointer; }
+    .logo span { color:#c9a84c; }
+    .subtitle { font-size:0.85rem; color:#999; margin-bottom:36px; }
+    .tabs { display:flex; background:#f0ede8; border-radius:10px; padding:4px; margin-bottom:28px; }
+    .tab { flex:1; padding:9px; border:none; background:transparent; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:500; color:#999; cursor:pointer; border-radius:7px; transition:all 0.2s; }
+    .tab.active { background:#fff; color:#1a1a2e; box-shadow:0 2px 8px rgba(0,0,0,0.08); font-weight:600; }
+
+    /* Auth method toggle */
+    .method-row { display:flex; gap:8px; margin-bottom:22px; }
+    .method-btn { flex:1; padding:8px; border:1.5px solid #e0dbd2; border-radius:8px; background:#faf9f7; font-family:'Sora',sans-serif; font-size:0.78rem; font-weight:500; color:#888; cursor:pointer; transition:all 0.2s; }
+    .method-btn.active { border-color:#c9a84c; background:#fff8ec; color:#1a1a2e; font-weight:600; }
+
+    .form-group { margin-bottom:18px; }
+    label { display:block; font-size:0.78rem; font-weight:600; color:#555; margin-bottom:7px; letter-spacing:.5px; text-transform:uppercase; }
+    input { width:100%; padding:12px 16px; border:1.5px solid #e0dbd2; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.9rem; color:#1a1a2e; background:#faf9f7; outline:none; transition:border-color 0.2s; }
+    input:focus { border-color:#c9a84c; background:#fff; }
+    input.error { border-color:#e05656; }
+    .err { font-size:0.72rem; color:#e05656; margin-top:4px; display:none; }
+    .err.show { display:block; }
+
+    .otp-row { display:flex; gap:8px; }
+    .otp-row input { flex:1; letter-spacing:4px; font-size:1.1rem; text-align:center; font-weight:700; }
+    .btn-send-otp { white-space:nowrap; padding:12px 16px; background:#1a1a2e; color:#fff; border:none; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-send-otp:hover { background:#c9a84c; }
+    .btn-send-otp:disabled { background:#ccc; cursor:default; }
+
+    .otp-hint { font-size:0.72rem; color:#aaa; margin-top:6px; }
+    .otp-hint strong { color:#c9a84c; font-size:0.85rem; letter-spacing:2px; }
+
+    .forgot { text-align:right; margin-top:-10px; margin-bottom:22px; }
+    .forgot a { font-size:0.78rem; color:#c9a84c; text-decoration:none; }
+    .btn-login { width:100%; padding:13px; background:#1a1a2e; color:#fff; border:none; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; transition:background 0.2s, transform 0.1s; margin-bottom:20px; }
+    .btn-login:hover { background:#c9a84c; }
+    .btn-login:active { transform:scale(0.98); }
+    .divider { display:flex; align-items:center; gap:12px; margin-bottom:18px; color:#bbb; font-size:0.78rem; }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background:#e0dbd2; }
+    .bottom-text { text-align:center; font-size:0.82rem; color:#999; }
+    .bottom-text a { color:#c9a84c; font-weight:600; text-decoration:none; }
+
+    /* Register */
+    #register-panel { display:none; }
+    .role-select { display:flex; gap:10px; margin-bottom:18px; }
+    .role-btn { flex:1; padding:10px; border:1.5px solid #e0dbd2; border-radius:10px; background:#faf9f7; font-family:'Sora',sans-serif; font-size:0.8rem; font-weight:500; color:#777; cursor:pointer; transition:all 0.2s; text-align:center; }
+    .role-btn.selected { border-color:#c9a84c; background:#fff8ec; color:#1a1a2e; font-weight:600; }
+
+    /* Global error banner */
+    .banner { padding:10px 16px; border-radius:8px; font-size:0.82rem; font-weight:500; margin-bottom:16px; display:none; }
+    .banner.error { background:#fff0f0; color:#e05656; border:1px solid #fcc; display:block; }
+    .banner.success { background:#f0fff4; color:#27a854; border:1px solid #b2e9c2; display:block; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo" onclick="window.location.href='home.html'">Nest<span>Find</span></div>
+  <p class="subtitle">Buy, Sell &amp; Rent Properties</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('login',this)">Login</button>
+    <button class="tab" onclick="switchTab('register',this)">Register</button>
+  </div>
+
+  <!-- ── LOGIN ── -->
+  <div id="login-panel">
+    <div id="login-banner" class="banner"></div>
+
+    <div class="method-row">
+      <button class="method-btn active" onclick="setMethod('email',this)">📧 Email</button>
+      <button class="method-btn" onclick="setMethod('phone',this)">📱 Phone OTP</button>
+    </div>
+
+    <!-- Email login -->
+    <div id="email-login">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="l-email" placeholder="you@example.com" />
+        <div class="err" id="e-l-email">Enter a valid email</div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="Your password" />
+        <div class="err" id="e-l-pass">Enter your password</div>
+      </div>
+      <div class="forgot"><a href="#">Forgot password?</a></div>
+      <button class="btn-login" onclick="doEmailLogin()">Login</button>
+    </div>
+
+    <!-- Phone OTP login -->
+    <div id="phone-login" style="display:none;">
+      <div class="form-group">
+        <label>Phone Number</label>
+        <div class="otp-row">
+          <input type="tel" id="l-phone" placeholder="+91 XXXXX XXXXX" />
+          <button class="btn-send-otp" id="btn-send-l" onclick="sendOTPLogin()">Send OTP</button>
+        </div>
+        <div class="err" id="e-l-phone">Enter a valid phone number</div>
+      </div>
+      <div class="form-group" id="otp-login-box" style="display:none;">
+        <label>Enter OTP</label>
+        <input type="text" id="l-otp" placeholder="000000" maxlength="6" />
+        <div class="otp-hint" id="otp-login-hint"></div>
+        <div class="err" id="e-l-otp">Enter the 6-digit OTP</div>
+      </div>
+      <button class="btn-login" onclick="doPhoneLogin()">Verify &amp; Login</button>
+    </div>
+
+    <p class="bottom-text">Don't have an account? <a href="#" onclick="switchTabByName('register')">Register</a></p>
+  </div>
+
+  <!-- ── REGISTER ── -->
+  <div id="register-panel">
+    <div id="reg-banner" class="banner"></div>
+
+    <div class="form-group">
+      <label>I want to</label>
+      <div class="role-select">
+        <button class="role-btn selected" onclick="selectRole(this)" data-role="buyer">🏠 Buy / Rent</button>
+        <button class="role-btn" onclick="selectRole(this)" data-role="seller">📋 Sell / List</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="r-name" placeholder="Your full name" />
+      <div class="err" id="e-r-name">Name is required</div>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="r-email" placeholder="you@example.com" />
+      <div class="err" id="e-r-email">Enter a valid email</div>
+    </div>
+    <div class="form-group">
+      <label>Phone</label>
+      <input type="tel" id="r-phone" placeholder="+91 XXXXX XXXXX" />
+      <div class="err" id="e-r-phone">Enter a valid phone number</div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="r-pass" placeholder="Min. 8 characters" />
+      <div class="err" id="e-r-pass">Password must be at least 8 characters</div>
+    </div>
+    <button class="btn-login" onclick="doRegister()">Create Account</button>
+    <p class="bottom-text">Already have an account? <a href="#" onclick="switchTabByName('login')">Login</a></p>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+  // Redirect if already logged in
+  if (NF.getSession()) window.location.href = 'home.html';
+
+  /* ── TAB SWITCH ── */
+  function switchTab(panel, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('login-panel').style.display    = panel === 'login'    ? 'block' : 'none';
+    document.getElementById('register-panel').style.display = panel === 'register' ? 'block' : 'none';
+  }
+  function switchTabByName(panel) {
+    const tabs = document.querySelectorAll('.tab');
+    switchTab(panel, tabs[panel === 'login' ? 0 : 1]);
+  }
+
+  /* ── AUTH METHOD ── */
+  function setMethod(method, btn) {
+    document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('email-login').style.display = method === 'email' ? 'block' : 'none';
+    document.getElementById('phone-login').style.display = method === 'phone' ? 'block' : 'none';
+    clearBanner('login-banner');
+  }
+
+  /* ── ROLE SELECT ── */
+  function selectRole(btn) {
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  /* ── BANNERS ── */
+  function showBanner(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'banner ' + type;
+  }
+  function clearBanner(id) {
+    const el = document.getElementById(id);
+    el.className = 'banner';
+  }
+
+  /* ── FIELD VALIDATION HELPERS ── */
+  function setErr(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('show', show);
+  }
+  function markErr(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('error', show);
+  }
+  function fieldErr(inputId, errId, condition) {
+    markErr(inputId, condition);
+    setErr(errId, condition);
+    return condition;
+  }
+
+  /* ── EMAIL LOGIN ── */
+  function doEmailLogin() {
+    clearBanner('login-banner');
+    const email = document.getElementById('l-email').value.trim();
+    const pass  = document.getElementById('l-pass').value;
+    let bad = false;
+    if (fieldErr('l-email','e-l-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) bad = true;
+    if (fieldErr('l-pass','e-l-pass', !pass)) bad = true;
+    if (bad) return;
+
+    const res = NF.loginEmail({ email, password: pass });
+    if (!res.ok) { showBanner('login-banner', res.msg, 'error'); return; }
+    window.location.href = 'home.html';
+  }
+
+  /* ── PHONE OTP LOGIN ── */
+  let otpLoginSent = false;
+  function sendOTPLogin() {
+    clearBanner('login-banner');
+    const phone = document.getElementById('l-phone').value.trim();
+    if (fieldErr('l-phone','e-l-phone', phone.replace(/\D/g,'').length < 10)) return;
+
+    const res = NF.sendOTP(phone);
+    if (!res.ok) { showBanner('login-banner', res.msg, 'error'); return; }
+
+    otpLoginSent = true;
+    document.getElementById('otp-login-box').style.display = 'block';
+    // Show OTP in UI for prototype
+    document.getElementById('otp-login-hint').innerHTML = `Demo OTP: <strong>${res.otp}</strong> (valid 5 min)`;
+    const btn = document.getElementById('btn-send-l');
+    btn.disabled = true; btn.textContent = 'Sent ✓';
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Resend'; }, 30000);
+  }
+
+  function doPhoneLogin() {
+    clearBanner('login-banner');
+    if (!otpLoginSent) { sendOTPLogin(); return; }
+    const phone = document.getElementById('l-phone').value.trim();
+    const otp   = document.getElementById('l-otp').value.trim();
+    if (fieldErr('l-otp','e-l-otp', otp.length !== 6)) return;
+
+    const res = NF.verifyOTP(phone, otp);
+    if (!res.ok) { showBanner('login-banner', res.msg, 'error'); return; }
+    window.location.href = 'home.html';
+  }
+
+  /* ── REGISTER ── */
+  function doRegister() {
+    clearBanner('reg-banner');
+    const name  = document.getElementById('r-name').value.trim();
+    const email = document.getElementById('r-email').value.trim();
+    const phone = document.getElementById('r-phone').value.trim();
+    const pass  = document.getElementById('r-pass').value;
+    const role  = document.querySelector('.role-btn.selected')?.dataset.role || 'buyer';
+
+    let bad = false;
+    if (fieldErr('r-name','e-r-name', !name)) bad = true;
+    if (fieldErr('r-email','e-r-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) bad = true;
+    if (fieldErr('r-phone','e-r-phone', phone.replace(/\D/g,'').length < 10)) bad = true;
+    if (fieldErr('r-pass','e-r-pass', pass.length < 8)) bad = true;
+    if (bad) return;
+
+    const res = NF.registerEmail({ name, email, phone, password: pass, role });
+    if (!res.ok) { showBanner('reg-banner', res.msg, 'error'); return; }
+    showBanner('reg-banner', `Welcome, ${res.user.name}! Redirecting...`, 'success');
+    setTimeout(() => window.location.href = 'home.html', 1200);
+  }
+</script>
+</body>
+</html>

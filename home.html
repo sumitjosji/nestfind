@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NestFind — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Sora',sans-serif; background:#f0ede8; min-height:100vh; color:#1a1a2e; }
+
+    nav { background:#fff; padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.06); position:sticky; top:0; z-index:100; }
+    .logo { font-size:1.5rem; font-weight:700; color:#1a1a2e; }
+    .logo span { color:#c9a84c; }
+    .nav-links { display:flex; align-items:center; gap:28px; }
+    .nav-links a { text-decoration:none; font-size:0.88rem; font-weight:500; color:#666; transition:color 0.2s; }
+    .nav-links a:hover { color:#c9a84c; }
+    .nav-links a.active { color:#1a1a2e; font-weight:600; }
+    .btn-post { background:#1a1a2e; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-post:hover { background:#c9a84c; }
+    .nav-avatar { width:36px; height:36px; background:#f0ede8; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; border:2px solid #e0dbd2; font-weight:700; }
+
+    /* ── HERO ── */
+    .hero { background:#1a1a2e; padding:48px 40px; text-align:center; }
+    .hero h1 { font-size:2rem; font-weight:700; color:#fff; margin-bottom:8px; }
+    .hero h1 span { color:#c9a84c; }
+    .hero p { font-size:0.9rem; color:rgba(255,255,255,0.5); margin-bottom:28px; }
+    .search-bar { background:#fff; border-radius:14px; padding:8px; display:flex; align-items:center; gap:8px; max-width:700px; margin:0 auto 20px; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+    .search-bar input { flex:1; border:none; outline:none; font-family:'Sora',sans-serif; font-size:0.9rem; color:#1a1a2e; padding:8px 12px; background:transparent; }
+    .search-bar select { border:none; outline:none; font-family:'Sora',sans-serif; font-size:0.85rem; color:#666; background:#f0ede8; border-radius:8px; padding:8px 12px; cursor:pointer; }
+    .btn-search { background:#c9a84c; color:#fff; border:none; padding:10px 24px; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.88rem; font-weight:600; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
+    .btn-search:hover { background:#b8923e; }
+    .filter-chips { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+    .chip { padding:7px 18px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.2); background:transparent; color:rgba(255,255,255,0.7); font-family:'Sora',sans-serif; font-size:0.8rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
+    .chip:hover, .chip.active { background:#c9a84c; border-color:#c9a84c; color:#fff; }
+
+    /* ── MAIN ── */
+    .main { max-width:1200px; margin:0 auto; padding:40px 24px; }
+
+    /* ── STATS ── */
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:40px; }
+    .stat-card { background:#fff; border-radius:14px; padding:20px 24px; box-shadow:0 2px 12px rgba(0,0,0,0.05); display:flex; align-items:center; gap:16px; }
+    .stat-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+    .stat-card:nth-child(1) .stat-icon { background:#fff8ec; }
+    .stat-card:nth-child(2) .stat-icon { background:#eef8f0; }
+    .stat-card:nth-child(3) .stat-icon { background:#eef3ff; }
+    .stat-card:nth-child(4) .stat-icon { background:#ffeef0; }
+    .stat-info h3 { font-size:1.4rem; font-weight:700; color:#1a1a2e; }
+    .stat-info p { font-size:0.78rem; color:#999; margin-top:2px; }
+
+    /* ── SECTION HEADER ── */
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .section-header h2 { font-size:1.2rem; font-weight:700; color:#1a1a2e; }
+    .section-header a { font-size:0.82rem; color:#c9a84c; text-decoration:none; font-weight:600; }
+
+    /* ── PROPERTY GRID ── */
+    .property-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:48px; }
+
+    /* ── PROPERTY CARD ── */
+    .prop-card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.06); cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; }
+    .prop-card:hover { transform:translateY(-4px); box-shadow:0 8px 28px rgba(0,0,0,0.12); }
+    .prop-img { height:160px; background:linear-gradient(135deg,#1a1a2e,#2d2d4e); display:flex; align-items:center; justify-content:center; font-size:3rem; position:relative; }
+    .prop-badge { position:absolute; top:12px; left:12px; padding:4px 10px; border-radius:6px; font-size:0.72rem; font-weight:700; }
+    .badge-sale { background:#fff8ec; color:#c9a84c; }
+    .badge-rent { background:#eef8f0; color:#27a854; }
+    .badge-pg   { background:#eef3ff; color:#4a6cf7; }
+    .prop-body { padding:16px; }
+    .prop-title { font-size:0.92rem; font-weight:700; color:#1a1a2e; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .prop-loc { font-size:0.76rem; color:#aaa; margin-bottom:10px; }
+    .prop-footer { display:flex; align-items:center; justify-content:space-between; }
+    .prop-price { font-size:1rem; font-weight:700; color:#c9a84c; }
+    .prop-meta { font-size:0.73rem; color:#bbb; }
+
+    /* Empty state card */
+    .empty-card { background:#fff; border-radius:16px; height:280px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; border:2px dashed #e0dbd2; color:#ccc; font-size:0.85rem; text-align:center; padding:20px; transition:border-color 0.2s; cursor:pointer; }
+    .empty-card:hover { border-color:#c9a84c; color:#c9a84c; }
+    .empty-icon { font-size:2.2rem; margin-bottom:4px; }
+    .empty-card p { font-weight:500; color:#bbb; }
+    .empty-card:hover p { color:#c9a84c; }
+
+    /* ── CATEGORIES ── */
+    .category-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:48px; }
+    .category-card { background:#fff; border-radius:14px; padding:24px 20px; text-align:center; cursor:pointer; transition:all 0.2s; box-shadow:0 2px 12px rgba(0,0,0,0.05); }
+    .category-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+    .cat-icon { font-size:2rem; margin-bottom:10px; }
+    .category-card h4 { font-size:0.9rem; font-weight:600; color:#1a1a2e; margin-bottom:4px; }
+    .category-card p { font-size:0.75rem; color:#aaa; }
+
+    /* ── FOOTER ── */
+    footer { background:#1a1a2e; color:rgba(255,255,255,0.5); text-align:center; padding:24px; font-size:0.8rem; }
+    footer span { color:#c9a84c; }
+
+    /* ── WELCOME BANNER ── */
+    .welcome-bar { background:linear-gradient(90deg,#1a1a2e,#2d2d4e); color:#fff; padding:14px 24px; border-radius:14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+    .welcome-bar .wt { font-size:0.9rem; font-weight:600; }
+    .welcome-bar .ws { font-size:0.78rem; color:rgba(255,255,255,0.55); margin-top:2px; }
+    .welcome-bar .wbtn { background:#c9a84c; color:#fff; border:none; padding:8px 18px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; white-space:nowrap; }
+
+    @media (max-width:768px) {
+      nav { padding:0 20px; } .nav-links { gap:14px; } .hero { padding:36px 20px; } .hero h1 { font-size:1.5rem; } .main { padding:24px 16px; }
+      .stats-row { grid-template-columns:repeat(2,1fr); } .property-grid { grid-template-columns:1fr 1fr; } .category-grid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width:480px) { .property-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="logo">Nest<span>Find</span></div>
+    <div class="nav-links">
+      <a href="home.html" class="active">Home</a>
+      <a href="buy.html">Buy</a>
+      <a href="rent.html">Rent</a>
+      <button class="btn-post" onclick="window.location.href='post-property.html'">+ Post Property</button>
+      <div class="nav-avatar" id="nav-av">👤</div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Find Your <span>Dream Property</span></h1>
+    <p>Buy, sell or rent flats, apartments and houses across India</p>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="🔍  Search by city, locality or title..." />
+      <select id="filter-type">
+        <option value="">All Types</option>
+        <option>Apartment</option>
+        <option>Independent House</option>
+        <option>Villa</option>
+        <option>Plot</option>
+        <option>PG / Hostel</option>
+      </select>
+      <select id="filter-budget">
+        <option value="">Any Budget</option>
+        <option value="20">Under ₹20L</option>
+        <option value="50">₹20L – ₹50L</option>
+        <option value="100">₹50L – ₹1Cr</option>
+        <option value="999">Above ₹1Cr</option>
+      </select>
+      <button class="btn-search" onclick="doSearch()">Search</button>
+    </div>
+    <div class="filter-chips">
+      <button class="chip active" onclick="setChip(this,'')">All</button>
+      <button class="chip" onclick="setChip(this,'Sale')">Buy</button>
+      <button class="chip" onclick="setChip(this,'Rent')">Rent</button>
+      <button class="chip" onclick="setChip(this,'PG')">PG / Hostel</button>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- WELCOME BAR (shown when logged in) -->
+    <div class="welcome-bar" id="welcome-bar" style="display:none;">
+      <div>
+        <div class="wt" id="welcome-name">Welcome back!</div>
+        <div class="ws">Ready to find your next property?</div>
+      </div>
+      <button class="wbtn" onclick="window.location.href='post-property.html'">+ List Your Property</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">🏠</div><div class="stat-info"><h3 id="stat-props">0</h3><p>Properties Listed</p></div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3 id="stat-deals">0</h3><p>Deals Closed</p></div></div>
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h3 id="stat-users">0</h3><p>Registered Users</p></div></div>
+      <div class="stat-card"><div class="stat-icon">📍</div><div class="stat-info"><h3 id="stat-cities">0</h3><p>Cities Covered</p></div></div>
+    </div>
+
+    <!-- FEATURED LISTINGS -->
+    <div class="section-header"><h2>Featured Listings</h2><a href="search.html">View all →</a></div>
+    <div class="property-grid" id="featured-grid"></div>
+
+    <!-- RECENTLY ADDED -->
+    <div class="section-header"><h2>Recently Added</h2><a href="search.html">View all →</a></div>
+    <div class="property-grid" id="recent-grid"></div>
+
+    <!-- BROWSE BY CATEGORY -->
+    <div class="section-header"><h2>Browse by Category</h2></div>
+    <div class="category-grid">
+      <div class="category-card" onclick="filterCat('Apartment')"><div class="cat-icon">🏢</div><h4>Apartments</h4><p id="cat-apt">0 listings</p></div>
+      <div class="category-card" onclick="filterCat('Independent House')"><div class="cat-icon">🏡</div><h4>Independent Houses</h4><p id="cat-house">0 listings</p></div>
+      <div class="category-card" onclick="filterCat('Villa')"><div class="cat-icon">🏖️</div><h4>Villas</h4><p id="cat-villa">0 listings</p></div>
+      <div class="category-card" onclick="filterCat('Plot')"><div class="cat-icon">🏗️</div><h4>Plots / Land</h4><p id="cat-plot">0 listings</p></div>
+      <div class="category-card" onclick="filterCat('Commercial')"><div class="cat-icon">🏬</div><h4>Commercial</h4><p id="cat-comm">0 listings</p></div>
+      <div class="category-card" onclick="filterCat('PG / Hostel')"><div class="cat-icon">🛏️</div><h4>PG / Hostel</h4><p id="cat-pg">0 listings</p></div>
+      <div class="category-card" onclick="setChipByLT('Rent')"><div class="cat-icon">🔑</div><h4>For Rent</h4><p id="cat-rent">0 listings</p></div>
+      <div class="category-card" onclick="setChipByLT('Sale')"><div class="cat-icon">💰</div><h4>For Sale</h4><p id="cat-sale">0 listings</p></div>
+    </div>
+
+  </main>
+
+  <footer><p>© 2025 <span>NestFind</span> — Buy, Sell &amp; Rent Properties with Ease</p></footer>
+
+  <script src="auth.js"></script>
+  <script>
+    let activeFilter = '';
+
+    /* ── CHIP FILTER ── */
+    function setChip(btn, lt) {
+      window.location.href = lt ? 'search.html?lt=' + encodeURIComponent(lt) : 'search.html';
+    }
+    function setChipByLT(lt) {
+      window.location.href = 'search.html?lt=' + encodeURIComponent(lt);
+    }
+    function filterCat(type) {
+      window.location.href = 'search.html?type=' + encodeURIComponent(type);
+    }
+
+    /* ── SEARCH ── */
+    function doSearch() {
+      const q      = document.getElementById('search-input').value.trim();
+      const type   = document.getElementById('filter-type').value;
+      const budget = document.getElementById('filter-budget').value;
+      const lt     = activeFilter;
+      const params = new URLSearchParams();
+      if (q)      params.set('q', q);
+      if (type)   params.set('type', type);
+      if (lt)     params.set('lt', lt);
+      window.location.href = 'search.html?' + params.toString();
+    }
+
+    /* ── PRICE FORMAT ── */
+    function fmtPrice(p) {
+      if (p >= 10000000) return '₹' + (p/10000000).toFixed(1) + ' Cr';
+      if (p >= 100000)   return '₹' + (p/100000).toFixed(1) + ' L';
+      return '₹' + p.toLocaleString('en-IN');
+    }
+
+    /* ── PROPERTY CARD HTML ── */
+    function propCardHTML(p) {
+      const icon = {Apartment:'🏢',Villa:'🏖️',Plot:'🏗️',Commercial:'🏬','PG / Hostel':'🛏️'}[p.type] || '🏠';
+      const badgeCls = {Sale:'badge-sale',Rent:'badge-rent',PG:'badge-pg'}[p.listingType] || 'badge-sale';
+      const badgeTxt = {Sale:'For Sale',Rent:'For Rent',PG:'PG'}[p.listingType] || p.listingType;
+      const imgHTML = p.photos && p.photos[0]
+        ? `<img src="${p.photos[0]}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;" />`
+        : icon;
+      return `
+        <div class="prop-card" onclick="window.location.href='property.html?id=${p.id}'">
+          <div class="prop-img">
+            ${imgHTML}
+            <span class="prop-badge ${badgeCls}">${badgeTxt}</span>
+          </div>
+          <div class="prop-body">
+            <div class="prop-title">${p.title}</div>
+            <div class="prop-loc">📍 ${[p.locality,p.city].filter(Boolean).join(', ')}</div>
+            <div class="prop-footer">
+              <span class="prop-price">${fmtPrice(p.price)}</span>
+              <span class="prop-meta">${p.bhk || p.type}</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function emptySlot(icon, label) {
+      return `<div class="empty-card" onclick="window.location.href='post-property.html'">
+        <div class="empty-icon">${icon}</div>
+        <p>No properties yet</p>
+        <span>${label}</span>
+      </div>`;
+    }
+
+    /* ── RENDER LISTINGS ── */
+    function renderListings(search) {
+      let props = NF.getProperties();
+
+      if (activeFilter) props = props.filter(p => p.listingType === activeFilter);
+      if (search?.q)    props = props.filter(p =>
+        p.title.toLowerCase().includes(search.q) ||
+        p.city.toLowerCase().includes(search.q) ||
+        (p.locality || '').toLowerCase().includes(search.q)
+      );
+      if (search?.type)   props = props.filter(p => p.type === search.type);
+      if (search?.budget) {
+        const b = Number(search.budget);
+        props = props.filter(p => {
+          const lakh = p.price / 100000;
+          if (b === 20) return lakh < 20;
+          if (b === 50) return lakh >= 20 && lakh <= 50;
+          if (b === 100) return lakh > 50 && lakh <= 100;
+          if (b === 999) return lakh > 100;
+          return true;
+        });
+      }
+
+      // Featured: first 3
+      const featured = props.slice(0, 3);
+      const fg = document.getElementById('featured-grid');
+      fg.innerHTML = featured.length
+        ? featured.map(propCardHTML).join('')
+        : [emptySlot('🏢','Listings will appear here'), emptySlot('🏢','Listings will appear here'), emptySlot('🏢','Listings will appear here')].join('');
+
+      // Recent: next 3
+      const recent = props.slice(3, 6);
+      const rg = document.getElementById('recent-grid');
+      rg.innerHTML = recent.length
+        ? recent.map(propCardHTML).join('')
+        : [emptySlot('🏠','Listings will appear here'), emptySlot('🏠','Listings will appear here'), emptySlot('🏠','Listings will appear here')].join('');
+    }
+
+    /* ── STATS ── */
+    function updateStats() {
+      const props = NF.getProperties();
+      document.getElementById('stat-props').textContent = props.length;
+      const cities = [...new Set(props.map(p => p.city).filter(Boolean))];
+      document.getElementById('stat-cities').textContent = cities.length;
+
+      // Users count from localStorage
+      try {
+        const users = JSON.parse(localStorage.getItem('nf_users') || '{}');
+        document.getElementById('stat-users').textContent = Object.keys(users).length;
+      } catch {}
+
+      // Category counts
+      const count = (fn) => props.filter(fn).length;
+      document.getElementById('cat-apt').textContent   = count(p => p.type === 'Apartment') + ' listings';
+      document.getElementById('cat-house').textContent = count(p => p.type === 'Independent House') + ' listings';
+      document.getElementById('cat-villa').textContent = count(p => p.type === 'Villa') + ' listings';
+      document.getElementById('cat-plot').textContent  = count(p => p.type === 'Plot') + ' listings';
+      document.getElementById('cat-comm').textContent  = count(p => p.type === 'Commercial') + ' listings';
+      document.getElementById('cat-pg').textContent    = count(p => p.type === 'PG / Hostel') + ' listings';
+      document.getElementById('cat-rent').textContent  = count(p => p.listingType === 'Rent') + ' listings';
+      document.getElementById('cat-sale').textContent  = count(p => p.listingType === 'Sale') + ' listings';
+    }
+
+    /* ── NAV / WELCOME ── */
+    function initPage() {
+      NF.updateNav();
+      const user = NF.getCurrentUser();
+      if (user) {
+        const wb = document.getElementById('welcome-bar');
+        wb.style.display = 'flex';
+        document.getElementById('welcome-name').textContent = `Welcome back, ${user.name.split(' ')[0]}! 👋`;
+      }
+      renderListings();
+      updateStats();
+    }
+
+    initPage();
+  </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NestFind — My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Sora',sans-serif; background:#f0ede8; min-height:100vh; color:#1a1a2e; }
+
+    nav { background:#fff; padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.06); position:sticky; top:0; z-index:100; }
+    .logo { font-size:1.5rem; font-weight:700; color:#1a1a2e; text-decoration:none; }
+    .logo span { color:#c9a84c; }
+    .nav-links { display:flex; align-items:center; gap:28px; }
+    .nav-links a { text-decoration:none; font-size:0.88rem; font-weight:500; color:#666; transition:color 0.2s; }
+    .nav-links a:hover { color:#c9a84c; }
+    .btn-post { background:#1a1a2e; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-post:hover { background:#c9a84c; }
+    .nav-avatar { width:36px; height:36px; background:#c9a84c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; border:2px solid #b8923e; font-weight:700; color:#fff; }
+
+    .page { max-width:520px; margin:48px auto; padding:0 20px 60px; }
+
+    .profile-card { background:#fff; border-radius:20px; padding:36px 28px 28px; box-shadow:0 2px 16px rgba(0,0,0,0.07); text-align:center; margin-bottom:20px; }
+    .avatar { width:86px; height:86px; background:linear-gradient(135deg,#c9a84c,#b8923e); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 14px; box-shadow:0 4px 16px rgba(201,168,76,0.25); font-weight:700; color:#fff; }
+    .profile-card h2 { font-size:1.25rem; font-weight:700; margin-bottom:4px; }
+    .profile-card .sub { font-size:0.82rem; color:#aaa; margin-bottom:20px; }
+    .profile-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .btn-edit { background:#1a1a2e; color:#fff; border:none; padding:9px 22px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.84rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-edit:hover { background:#c9a84c; }
+    .btn-outline { background:transparent; color:#666; border:1.5px solid #e0dbd2; padding:9px 20px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.84rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .btn-outline:hover { border-color:#c9a84c; color:#c9a84c; }
+    .btn-logout { background:transparent; color:#e05656; border:1.5px solid #fcc; padding:9px 20px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.84rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .btn-logout:hover { background:#fff0f0; }
+
+    .info-card { background:#fff; border-radius:16px; padding:22px 24px; box-shadow:0 2px 12px rgba(0,0,0,0.05); margin-bottom:20px; }
+    .card-title { font-size:0.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#bbb; margin-bottom:16px; }
+    .info-row { display:flex; align-items:center; gap:14px; padding:11px 0; border-bottom:1px solid #f5f2ee; }
+    .info-row:last-child { border-bottom:none; }
+    .info-icon { font-size:1.05rem; width:30px; text-align:center; flex-shrink:0; }
+    .info-label { font-size:0.74rem; color:#aaa; margin-bottom:1px; }
+    .info-value { font-size:0.87rem; font-weight:600; color:#1a1a2e; }
+    .info-value.empty { color:#ccc; font-weight:400; font-style:italic; }
+
+    .pref-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { padding:6px 14px; background:#f8f6f2; border-radius:20px; font-size:0.79rem; font-weight:600; color:#555; border:1.5px solid #ece8e0; }
+    .chip.gold { background:#fff8ec; color:#c9a84c; border-color:#f0dfa0; }
+    .no-prefs { font-size:0.82rem; color:#bbb; font-style:italic; }
+
+    /* My Listings */
+    .listing-item { display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #f5f2ee; }
+    .listing-item:last-child { border-bottom:none; }
+    .listing-icon { width:44px; height:44px; background:#f0ede8; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+    .listing-info { flex:1; min-width:0; }
+    .listing-title { font-size:0.87rem; font-weight:600; color:#1a1a2e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .listing-meta { font-size:0.75rem; color:#aaa; margin-top:2px; }
+    .listing-price { font-size:0.87rem; font-weight:700; color:#c9a84c; white-space:nowrap; }
+    .btn-del { background:none; border:none; color:#e05656; cursor:pointer; font-size:1rem; padding:4px; opacity:0.6; transition:opacity 0.2s; }
+    .btn-del:hover { opacity:1; }
+    .no-listings { font-size:0.82rem; color:#bbb; font-style:italic; }
+
+    footer { background:#1a1a2e; color:rgba(255,255,255,0.5); text-align:center; padding:24px; font-size:0.8rem; }
+    footer span { color:#c9a84c; }
+
+    @media (max-width:600px) { nav { padding:0 20px; } .nav-links { gap:14px; } .page { margin:28px auto; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="home.html" class="logo">Nest<span>Find</span></a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="#">Buy</a>
+      <a href="#">Rent</a>
+      <a href="#">Sell</a>
+      <button class="btn-post" onclick="window.location.href='post-property.html'">+ Post Property</button>
+      <div class="nav-avatar" id="nav-av">👤</div>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- PROFILE CARD -->
+    <div class="profile-card">
+      <div class="avatar" id="prof-avatar">👤</div>
+      <h2 id="prof-name">—</h2>
+      <div class="sub" id="prof-sub">Loading...</div>
+      <div class="profile-btns">
+        <button class="btn-edit" onclick="window.location.href='edit-profile.html'">✏️ Edit Profile</button>
+        <button class="btn-outline" onclick="shareProfile()">🔗 Share</button>
+        <button class="btn-logout" onclick="NF.logout()">↩ Logout</button>
+      </div>
+    </div>
+
+    <!-- BASIC INFO -->
+    <div class="info-card">
+      <div class="card-title">Basic Info</div>
+      <div class="info-row">
+        <div class="info-icon">📧</div>
+        <div><div class="info-label">Email</div><div class="info-value" id="prof-email">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📞</div>
+        <div><div class="info-label">Phone</div><div class="info-value" id="prof-phone">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🎂</div>
+        <div><div class="info-label">Date of Birth</div><div class="info-value" id="prof-dob">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📍</div>
+        <div><div class="info-label">City</div><div class="info-value" id="prof-city">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🏷️</div>
+        <div><div class="info-label">Role</div><div class="info-value" id="prof-role">—</div></div>
+      </div>
+    </div>
+
+    <!-- PROPERTY PREFERENCES -->
+    <div class="info-card">
+      <div class="card-title">Property Preferences</div>
+      <div class="pref-chips" id="pref-chips"><span class="no-prefs">No preferences set</span></div>
+    </div>
+
+    <!-- MY LISTINGS -->
+    <div class="info-card">
+      <div class="card-title">My Listings</div>
+      <div id="my-listings"><span class="no-listings">You haven't posted any properties yet.</span></div>
+    </div>
+
+  </div>
+
+  <footer><p>© 2025 <span>NestFind</span> — Buy, Sell &amp; Rent Properties with Ease</p></footer>
+
+  <script src="auth.js"></script>
+  <script>
+    NF.requireAuth();
+
+    function fmtDate(str) {
+      if (!str) return null;
+      try { return new Date(str).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }); }
+      catch { return str; }
+    }
+    function fmtJoined(ts) {
+      if (!ts) return '';
+      return new Date(ts).toLocaleDateString('en-IN', { month:'short', year:'numeric' });
+    }
+    function val(id, v, fallback) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (v) { el.textContent = v; el.classList.remove('empty'); }
+      else   { el.textContent = fallback || 'Not set'; el.classList.add('empty'); }
+    }
+
+    function loadProfile() {
+      const user = NF.getCurrentUser();
+      if (!user) return;
+
+      // Avatar initial
+      const av = document.getElementById('prof-avatar');
+      av.textContent = user.name.charAt(0).toUpperCase();
+
+      document.getElementById('prof-name').textContent = user.name;
+      document.getElementById('prof-sub').textContent =
+        (user.city ? `📍 ${user.city}` : '') +
+        (user.city && user.createdAt ? ' · ' : '') +
+        (user.createdAt ? `Member since ${fmtJoined(user.createdAt)}` : '');
+
+      val('prof-email', user.email);
+      val('prof-phone', user.phone);
+      val('prof-dob', fmtDate(user.dob));
+      val('prof-city', user.city);
+      val('prof-role', user.role === 'seller' ? '📋 Seller / Agent' : '🏠 Buyer / Renter');
+
+      // Nav avatar
+      document.getElementById('nav-av').textContent = user.name.charAt(0).toUpperCase();
+
+      // Prefs
+      const chips = [];
+      (user.intent || []).forEach(i => chips.push(`<span class="chip gold">${i}</span>`));
+      (user.bhk    || []).forEach(i => chips.push(`<span class="chip">${i}</span>`));
+      (user.propertyType || []).forEach(i => chips.push(`<span class="chip">${i}</span>`));
+      if (user.budget) chips.push(`<span class="chip gold">💰 ${user.budget}</span>`);
+      if (user.city)   chips.push(`<span class="chip">${user.city}</span>`);
+      document.getElementById('pref-chips').innerHTML = chips.length
+        ? chips.join('')
+        : '<span class="no-prefs">No preferences set</span>';
+
+      // My listings
+      const myProps = NF.getUserProperties(user.id);
+      const listingsEl = document.getElementById('my-listings');
+      if (!myProps.length) {
+        listingsEl.innerHTML = '<span class="no-listings">You haven\'t posted any properties yet.</span>';
+      } else {
+        listingsEl.innerHTML = myProps.map(p => `
+          <div class="listing-item" id="li-${p.id}">
+            <div class="listing-icon">${p.type === 'Apartment' ? '🏢' : p.type === 'Villa' ? '🏖️' : p.type === 'Plot' ? '🏗️' : '🏠'}</div>
+            <div class="listing-info">
+              <div class="listing-title">${p.title}</div>
+              <div class="listing-meta">${p.city} · ${p.listingType} · ${new Date(p.postedAt).toLocaleDateString('en-IN')}</div>
+            </div>
+            <div class="listing-price">₹${Number(p.price).toLocaleString('en-IN')}</div>
+            <button class="btn-del" title="Delete" onclick="deleteListing('${p.id}')">🗑</button>
+          </div>`).join('');
+      }
+    }
+
+    function deleteListing(id) {
+      if (!confirm('Delete this property?')) return;
+      const res = NF.deleteProperty(id);
+      if (res.ok) {
+        const el = document.getElementById('li-' + id);
+        if (el) el.remove();
+        const remaining = document.querySelectorAll('#my-listings .listing-item');
+        if (!remaining.length) document.getElementById('my-listings').innerHTML = '<span class="no-listings">You haven\'t posted any properties yet.</span>';
+      }
+    }
+
+    function shareProfile() {
+      const user = NF.getCurrentUser();
+      const text = `Check out ${user.name}'s profile on NestFind!`;
+      if (navigator.share) navigator.share({ title: 'NestFind Profile', text });
+      else { navigator.clipboard?.writeText(text); alert('Profile link copied!'); }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

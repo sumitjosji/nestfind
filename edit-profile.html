@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NestFind — Edit Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Sora',sans-serif; background:#f0ede8; min-height:100vh; color:#1a1a2e; }
+
+    nav { background:#fff; padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.06); position:sticky; top:0; z-index:100; }
+    .logo { font-size:1.5rem; font-weight:700; color:#1a1a2e; text-decoration:none; }
+    .logo span { color:#c9a84c; }
+    .nav-links { display:flex; align-items:center; gap:28px; }
+    .nav-links a { text-decoration:none; font-size:0.88rem; font-weight:500; color:#666; transition:color 0.2s; }
+    .nav-links a:hover { color:#c9a84c; }
+    .btn-post { background:#1a1a2e; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-post:hover { background:#c9a84c; }
+    .nav-avatar { width:36px; height:36px; background:#c9a84c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; border:2px solid #b8923e; font-weight:700; color:#fff; }
+
+    .page { max-width:560px; margin:40px auto; padding:0 20px 60px; }
+
+    .page-header { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+    .back-btn { width:38px; height:38px; background:#fff; border:none; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.07); transition:background 0.2s; text-decoration:none; color:#1a1a2e; flex-shrink:0; }
+    .back-btn:hover { background:#c9a84c; color:#fff; }
+    .page-header h1 { font-size:1.2rem; font-weight:700; }
+
+    .avatar-section { background:#fff; border-radius:20px; padding:28px; box-shadow:0 2px 16px rgba(0,0,0,0.07); text-align:center; margin-bottom:16px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+    .avatar-wrapper { position:relative; width:86px; height:86px; }
+    .avatar { width:86px; height:86px; background:linear-gradient(135deg,#c9a84c,#b8923e); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.4rem; box-shadow:0 4px 16px rgba(201,168,76,0.25); font-weight:700; color:#fff; }
+    .avatar-section p { font-size:0.8rem; color:#aaa; }
+
+    .form-card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.05); margin-bottom:16px; }
+    .card-title { font-size:0.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#bbb; margin-bottom:20px; }
+
+    .field { margin-bottom:18px; }
+    .field:last-child { margin-bottom:0; }
+    .field label { display:block; font-size:0.75rem; font-weight:600; color:#888; margin-bottom:7px; letter-spacing:.02em; }
+    .field-inner { position:relative; display:flex; align-items:center; }
+    .field-icon { position:absolute; left:14px; font-size:1rem; pointer-events:none; z-index:1; }
+    .field input, .field select, .field textarea {
+      width:100%; padding:11px 14px 11px 42px; border:1.5px solid #ece8e0; border-radius:10px;
+      font-family:'Sora',sans-serif; font-size:0.87rem; color:#1a1a2e; background:#faf9f7;
+      outline:none; transition:border-color 0.2s, box-shadow 0.2s; appearance:none;
+    }
+    .field textarea { resize:none; height:90px; padding-top:12px; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color:#c9a84c; box-shadow:0 0 0 3px rgba(201,168,76,0.12); background:#fff; }
+    .field input.error, .field select.error { border-color:#e05656; box-shadow:0 0 0 3px rgba(224,86,86,0.1); }
+    .err { font-size:0.72rem; color:#e05656; margin-top:5px; display:none; }
+    .err.show { display:block; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:480px) { .two-col { grid-template-columns:1fr; } }
+
+    .divider { border:none; border-top:1px solid #f0ede8; margin:18px 0; }
+
+    /* Pref chips */
+    .chip-group { display:flex; flex-wrap:wrap; gap:8px; }
+    .pref-chip { padding:8px 16px; background:#faf9f7; border:1.5px solid #ece8e0; border-radius:20px; font-family:'Sora',sans-serif; font-size:0.8rem; font-weight:500; color:#777; cursor:pointer; transition:all 0.18s; }
+    .pref-chip.selected { background:#fff8ec; border-color:#c9a84c; color:#1a1a2e; font-weight:600; }
+
+    /* Password toggle */
+    .toggle-pass { position:absolute; right:12px; background:none; border:none; cursor:pointer; font-size:0.9rem; padding:4px; color:#aaa; }
+
+    .actions { display:flex; gap:12px; margin-top:8px; }
+    .btn-save { flex:1; padding:13px; background:#1a1a2e; color:#fff; border:none; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-save:hover { background:#c9a84c; }
+    .btn-cancel { padding:13px 22px; background:transparent; border:1.5px solid #e0dbd2; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.9rem; font-weight:600; color:#888; cursor:pointer; transition:all 0.2s; }
+    .btn-cancel:hover { border-color:#c9a84c; color:#c9a84c; }
+
+    /* Toast */
+    .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a2e; color:#fff; padding:12px 22px; border-radius:12px; font-size:0.87rem; font-weight:600; display:flex; align-items:center; gap:10px; opacity:0; transition:all 0.35s; pointer-events:none; white-space:nowrap; z-index:999; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast-icon { font-size:1.1rem; }
+
+    footer { background:#1a1a2e; color:rgba(255,255,255,0.5); text-align:center; padding:24px; font-size:0.8rem; }
+    footer span { color:#c9a84c; }
+    @media (max-width:600px) { nav { padding:0 20px; } .nav-links { gap:14px; } .page { margin:24px auto; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="home.html" class="logo">Nest<span>Find</span></a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="#">Buy</a>
+      <a href="#">Rent</a>
+      <a href="#">Sell</a>
+      <button class="btn-post" onclick="window.location.href='post-property.html'">+ Post Property</button>
+      <div class="nav-avatar" id="nav-av">👤</div>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <a href="profile.html" class="back-btn">←</a>
+      <h1>Edit Profile</h1>
+    </div>
+
+    <!-- AVATAR -->
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <div class="avatar" id="ep-avatar">👤</div>
+      </div>
+      <p>Your avatar uses your name initial automatically</p>
+    </div>
+
+    <!-- BASIC INFO -->
+    <div class="form-card">
+      <div class="card-title">Basic Info</div>
+      <div class="two-col">
+        <div class="field">
+          <label>First Name</label>
+          <div class="field-inner">
+            <span class="field-icon">👤</span>
+            <input type="text" id="first-name" placeholder="First name" />
+          </div>
+          <div class="err" id="err-first-name">First name is required</div>
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <div class="field-inner">
+            <span class="field-icon">👤</span>
+            <input type="text" id="last-name" placeholder="Last name" />
+          </div>
+          <div class="err" id="err-last-name">Last name is required</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <div class="field-inner">
+          <span class="field-icon">📧</span>
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+        <div class="err" id="err-email">Enter a valid email address</div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Phone</label>
+          <div class="field-inner">
+            <span class="field-icon">📞</span>
+            <input type="tel" id="phone" placeholder="+91 XXXXX XXXXX" />
+          </div>
+          <div class="err" id="err-phone">Enter a valid phone number</div>
+        </div>
+        <div class="field">
+          <label>Date of Birth</label>
+          <div class="field-inner">
+            <span class="field-icon">🎂</span>
+            <input type="date" id="dob" style="padding-left:42px;" />
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>City</label>
+        <div class="field-inner">
+          <span class="field-icon">📍</span>
+          <input type="text" id="city" placeholder="Bengaluru" />
+        </div>
+      </div>
+    </div>
+
+    <!-- PROPERTY PREFERENCES -->
+    <div class="form-card">
+      <div class="card-title">Property Preferences</div>
+
+      <div class="field">
+        <label>Looking to</label>
+        <div class="chip-group" id="intent-chips">
+          <button class="pref-chip" data-group="intent">🏠 Buy</button>
+          <button class="pref-chip" data-group="intent">🔑 Rent</button>
+          <button class="pref-chip" data-group="intent">💼 Invest</button>
+        </div>
+      </div>
+      <hr class="divider"/>
+      <div class="field">
+        <label>Property Type</label>
+        <div class="chip-group" id="type-chips">
+          <button class="pref-chip" data-group="type">🏢 Apartment</button>
+          <button class="pref-chip" data-group="type">🏡 House</button>
+          <button class="pref-chip" data-group="type">🏖️ Villa</button>
+          <button class="pref-chip" data-group="type">🏗️ Plot</button>
+          <button class="pref-chip" data-group="type">🏬 Commercial</button>
+        </div>
+      </div>
+      <hr class="divider"/>
+      <div class="field">
+        <label>BHK Preference</label>
+        <div class="chip-group" id="bhk-chips">
+          <button class="pref-chip" data-group="bhk">1 BHK</button>
+          <button class="pref-chip" data-group="bhk">2 BHK</button>
+          <button class="pref-chip" data-group="bhk">3 BHK</button>
+          <button class="pref-chip" data-group="bhk">4+ BHK</button>
+        </div>
+      </div>
+      <hr class="divider"/>
+      <div class="field">
+        <label>Budget Range</label>
+        <div class="field-inner">
+          <span class="field-icon">💰</span>
+          <select id="budget">
+            <option value="">Select budget</option>
+            <option>Under ₹20L</option>
+            <option>₹20L – ₹50L</option>
+            <option>₹50L – ₹1Cr</option>
+            <option>Above ₹1Cr</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANGE PASSWORD -->
+    <div class="form-card">
+      <div class="card-title">Change Password</div>
+      <div class="field">
+        <label>Current Password</label>
+        <div class="field-inner">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="curr-pass" placeholder="Enter current password" />
+          <button class="toggle-pass" onclick="togglePass('curr-pass',this)">👁️</button>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>New Password</label>
+          <div class="field-inner">
+            <span class="field-icon">🔑</span>
+            <input type="password" id="new-pass" placeholder="Min. 8 characters" />
+            <button class="toggle-pass" onclick="togglePass('new-pass',this)">👁️</button>
+          </div>
+          <div class="err" id="err-new-pass">Password must be at least 8 characters</div>
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="field-inner">
+            <span class="field-icon">🔑</span>
+            <input type="password" id="confirm-pass" placeholder="Re-enter password" />
+            <button class="toggle-pass" onclick="togglePass('confirm-pass',this)">👁️</button>
+          </div>
+          <div class="err" id="err-confirm-pass">Passwords do not match</div>
+        </div>
+      </div>
+      <p style="font-size:0.75rem;color:#bbb;margin-top:4px;">Leave blank to keep your current password.</p>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+      <button class="btn-save" onclick="saveProfile()">💾 &nbsp;Save Changes</button>
+      <button class="btn-cancel" onclick="window.location.href='profile.html'">Cancel</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-icon">✅</span>
+    <span id="toast-msg">Profile saved!</span>
+  </div>
+
+  <footer><p>© 2025 <span>NestFind</span> — Buy, Sell &amp; Rent Properties with Ease</p></footer>
+
+  <script src="auth.js"></script>
+  <script>
+    NF.requireAuth();
+
+    /* ── CHIP TOGGLE ── */
+    document.querySelectorAll('.pref-chip').forEach(c => {
+      c.addEventListener('click', () => c.classList.toggle('selected'));
+    });
+
+    /* ── PASSWORD TOGGLE ── */
+    function togglePass(id, btn) {
+      const inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.textContent = inp.type === 'password' ? '👁️' : '🙈';
+    }
+
+    /* ── ERROR HELPERS ── */
+    function setErr(id, show) { document.getElementById(id)?.classList.toggle('show', show); }
+    function markErr(id, show) { document.getElementById(id)?.classList.toggle('error', show); }
+    function fe(inputId, errId, cond) { markErr(inputId, cond); setErr(errId, cond); return cond; }
+
+    /* ── LOAD ── */
+    window.addEventListener('DOMContentLoaded', () => {
+      const user = NF.getCurrentUser();
+      if (!user) return;
+
+      // Avatar initial
+      document.getElementById('ep-avatar').textContent = user.name.charAt(0).toUpperCase();
+      document.getElementById('nav-av').textContent = user.name.charAt(0).toUpperCase();
+
+      // Split name
+      const parts = user.name.split(' ');
+      document.getElementById('first-name').value = parts[0] || '';
+      document.getElementById('last-name').value  = parts.slice(1).join(' ') || '';
+      document.getElementById('email').value = user.email || '';
+      document.getElementById('phone').value = user.phone || '';
+      document.getElementById('dob').value   = user.dob   || '';
+      document.getElementById('city').value  = user.city  || '';
+      if (user.budget) document.getElementById('budget').value = user.budget;
+
+      // Chips
+      if (user.intent)       document.querySelectorAll('#intent-chips .pref-chip').forEach(c => { if (user.intent.includes(c.textContent.trim())) c.classList.add('selected'); });
+      if (user.propertyType) document.querySelectorAll('#type-chips .pref-chip').forEach(c => { if (user.propertyType.includes(c.textContent.trim())) c.classList.add('selected'); });
+      if (user.bhk)          document.querySelectorAll('#bhk-chips .pref-chip').forEach(c => { if (user.bhk.includes(c.textContent.trim())) c.classList.add('selected'); });
+    });
+
+    /* ── SAVE ── */
+    function saveProfile() {
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName  = document.getElementById('last-name').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const phone     = document.getElementById('phone').value.trim();
+
+      let bad = false;
+      if (fe('first-name','err-first-name', !firstName)) bad = true;
+      if (fe('last-name','err-last-name',   !lastName))  bad = true;
+      if (fe('email','err-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) bad = true;
+      if (fe('phone','err-phone', phone.replace(/\D/g,'').length < 10)) bad = true;
+      if (bad) return;
+
+      const fields = {
+        name: `${firstName} ${lastName}`,
+        email, phone,
+        dob:    document.getElementById('dob').value,
+        city:   document.getElementById('city').value.trim(),
+        budget: document.getElementById('budget').value,
+        intent:       [...document.querySelectorAll('#intent-chips .pref-chip.selected')].map(c => c.textContent.trim()),
+        propertyType: [...document.querySelectorAll('#type-chips .pref-chip.selected')].map(c => c.textContent.trim()),
+        bhk:          [...document.querySelectorAll('#bhk-chips .pref-chip.selected')].map(c => c.textContent.trim()),
+      };
+
+      // Password change
+      const currPass    = document.getElementById('curr-pass').value;
+      const newPass     = document.getElementById('new-pass').value;
+      const confirmPass = document.getElementById('confirm-pass').value;
+
+      if (newPass || confirmPass) {
+        if (fe('new-pass','err-new-pass', newPass.length < 8)) return;
+        if (fe('confirm-pass','err-confirm-pass', newPass !== confirmPass)) return;
+        const pwRes = NF.changePassword(currPass, newPass);
+        if (!pwRes.ok) { showToast('❌', pwRes.msg); return; }
+      }
+
+      const res = NF.updateProfile(fields);
+      if (!res.ok) { showToast('❌', res.msg); return; }
+
+      showToast('✅', 'Profile saved successfully!');
+      setTimeout(() => window.location.href = 'profile.html', 1500);
+    }
+
+    /* ── TOAST ── */
+    function showToast(icon, msg) {
+      document.querySelector('.toast-icon').textContent = icon;
+      document.getElementById('toast-msg').textContent = msg;
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>

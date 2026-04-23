@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NestFind — Post Property</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Sora',sans-serif; background:#f0ede8; min-height:100vh; color:#1a1a2e; }
+
+    nav { background:#fff; padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.06); position:sticky; top:0; z-index:100; }
+    .logo { font-size:1.5rem; font-weight:700; color:#1a1a2e; text-decoration:none; }
+    .logo span { color:#c9a84c; }
+    .nav-links { display:flex; align-items:center; gap:28px; }
+    .nav-links a { text-decoration:none; font-size:0.88rem; font-weight:500; color:#666; transition:color 0.2s; }
+    .nav-links a:hover { color:#c9a84c; }
+    .btn-post { background:#c9a84c; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; }
+    .nav-avatar { width:36px; height:36px; background:#c9a84c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; border:2px solid #b8923e; font-weight:700; color:#fff; }
+
+    .page { max-width:600px; margin:40px auto; padding:0 20px 60px; }
+    .page-header { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+    .back-btn { width:38px; height:38px; background:#fff; border:none; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.07); transition:background 0.2s; text-decoration:none; color:#1a1a2e; flex-shrink:0; }
+    .back-btn:hover { background:#c9a84c; color:#fff; }
+    .page-header h1 { font-size:1.2rem; font-weight:700; }
+
+    .form-card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.05); margin-bottom:16px; }
+    .card-title { font-size:0.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#bbb; margin-bottom:20px; }
+
+    .field { margin-bottom:18px; }
+    .field:last-child { margin-bottom:0; }
+    .field label { display:block; font-size:0.75rem; font-weight:600; color:#888; margin-bottom:7px; }
+    .field-inner { position:relative; display:flex; align-items:center; }
+    .field-icon { position:absolute; left:14px; font-size:1rem; pointer-events:none; }
+    .field input, .field select, .field textarea {
+      width:100%; padding:11px 14px 11px 42px; border:1.5px solid #ece8e0; border-radius:10px;
+      font-family:'Sora',sans-serif; font-size:0.87rem; color:#1a1a2e; background:#faf9f7;
+      outline:none; transition:border-color 0.2s; appearance:none;
+    }
+    .field textarea { resize:vertical; height:100px; padding-top:12px; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color:#c9a84c; background:#fff; }
+    .field input.error, .field select.error, .field textarea.error { border-color:#e05656; }
+    .err { font-size:0.72rem; color:#e05656; margin-top:5px; display:none; }
+    .err.show { display:block; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:480px) { .two-col { grid-template-columns:1fr; } }
+
+    /* Listing type toggle */
+    .listing-type-row { display:flex; gap:10px; margin-bottom:20px; }
+    .lt-btn { flex:1; padding:11px; border:1.5px solid #e0dbd2; border-radius:10px; background:#faf9f7; font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:500; color:#888; cursor:pointer; transition:all 0.2s; text-align:center; }
+    .lt-btn.selected { border-color:#c9a84c; background:#fff8ec; color:#1a1a2e; font-weight:700; }
+
+    .photo-drop { border:2px dashed #e0dbd2; border-radius:12px; padding:28px 20px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:12px; }
+    .photo-drop:hover { border-color:#c9a84c; background:#fffdf7; }
+    .drop-icon { font-size:2rem; margin-bottom:8px; }
+    .photo-drop p { font-size:0.87rem; font-weight:600; color:#555; margin-bottom:4px; }
+    .photo-drop span { font-size:0.75rem; color:#bbb; }
+    .photo-preview { display:flex; flex-wrap:wrap; gap:10px; }
+    .photo-thumb { position:relative; width:90px; height:90px; border-radius:10px; overflow:hidden; border:1.5px solid #e0dbd2; flex-shrink:0; }
+    .photo-thumb img { width:100%; height:100%; object-fit:cover; }
+    .photo-thumb .del-photo { position:absolute; top:4px; right:4px; width:20px; height:20px; background:rgba(0,0,0,0.55); border:none; border-radius:50%; color:#fff; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+    .actions { display:flex; gap:12px; margin-top:8px; }
+    .btn-submit { flex:1; padding:14px; background:#1a1a2e; color:#fff; border:none; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-submit:hover { background:#c9a84c; }
+    .btn-cancel { padding:14px 22px; background:transparent; border:1.5px solid #e0dbd2; border-radius:10px; font-family:'Sora',sans-serif; font-size:0.9rem; font-weight:600; color:#888; cursor:pointer; transition:all 0.2s; }
+    .btn-cancel:hover { border-color:#c9a84c; color:#c9a84c; }
+
+    .banner { padding:10px 16px; border-radius:8px; font-size:0.82rem; font-weight:500; margin-bottom:16px; display:none; }
+    .banner.error { background:#fff0f0; color:#e05656; border:1px solid #fcc; display:block; }
+
+    .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a2e; color:#fff; padding:12px 22px; border-radius:12px; font-size:0.87rem; font-weight:600; display:flex; align-items:center; gap:10px; opacity:0; transition:all 0.35s; pointer-events:none; z-index:999; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    footer { background:#1a1a2e; color:rgba(255,255,255,0.5); text-align:center; padding:24px; font-size:0.8rem; }
+    footer span { color:#c9a84c; }
+    @media (max-width:600px) { nav { padding:0 20px; } .nav-links { gap:14px; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="home.html" class="logo">Nest<span>Find</span></a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="#">Buy</a>
+      <a href="#">Rent</a>
+      <a href="#">Sell</a>
+      <button class="btn-post">+ Post Property</button>
+      <div class="nav-avatar" id="nav-av" onclick="window.location.href='profile.html'">👤</div>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <a href="home.html" class="back-btn">←</a>
+      <h1>Post a Property</h1>
+    </div>
+
+    <div id="top-banner" class="banner"></div>
+
+    <!-- LISTING TYPE -->
+    <div class="form-card">
+      <div class="card-title">Listing Type</div>
+      <div class="listing-type-row">
+        <button class="lt-btn selected" onclick="selectLT(this)" data-lt="Sale">🏷️ For Sale</button>
+        <button class="lt-btn" onclick="selectLT(this)" data-lt="Rent">🔑 For Rent</button>
+        <button class="lt-btn" onclick="selectLT(this)" data-lt="PG">🛏️ PG / Hostel</button>
+      </div>
+    </div>
+
+    <!-- PROPERTY DETAILS -->
+    <div class="form-card">
+      <div class="card-title">Property Details</div>
+
+      <div class="field">
+        <label>Property Title *</label>
+        <div class="field-inner">
+          <span class="field-icon">🏠</span>
+          <input type="text" id="p-title" placeholder="e.g. 3 BHK Flat in Koramangala" />
+        </div>
+        <div class="err" id="e-title">Title is required</div>
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label>Property Type *</label>
+          <div class="field-inner">
+            <span class="field-icon">🏢</span>
+            <select id="p-type">
+              <option value="">Select type</option>
+              <option>Apartment</option>
+              <option>Independent House</option>
+              <option>Villa</option>
+              <option>Plot</option>
+              <option>Commercial</option>
+              <option>PG / Hostel</option>
+            </select>
+          </div>
+          <div class="err" id="e-type">Select property type</div>
+        </div>
+        <div class="field">
+          <label>BHK / Size</label>
+          <div class="field-inner">
+            <span class="field-icon">🛏️</span>
+            <select id="p-bhk">
+              <option value="">Select BHK</option>
+              <option>1 BHK</option>
+              <option>2 BHK</option>
+              <option>3 BHK</option>
+              <option>4 BHK</option>
+              <option>4+ BHK</option>
+              <option>Studio</option>
+              <option>N/A (Plot/Commercial)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label>Price (₹) *</label>
+          <div class="field-inner">
+            <span class="field-icon">💰</span>
+            <input type="number" id="p-price" placeholder="e.g. 5000000" min="0" />
+          </div>
+          <div class="err" id="e-price">Enter a valid price</div>
+        </div>
+        <div class="field">
+          <label>Area (sq ft)</label>
+          <div class="field-inner">
+            <span class="field-icon">📐</span>
+            <input type="number" id="p-area" placeholder="e.g. 1200" min="0" />
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <div class="field-inner">
+          <span class="field-icon">📝</span>
+          <textarea id="p-desc" placeholder="Describe the property — amenities, condition, highlights..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCATION -->
+    <div class="form-card">
+      <div class="card-title">Location</div>
+      <div class="two-col">
+        <div class="field">
+          <label>City *</label>
+          <div class="field-inner">
+            <span class="field-icon">🏙️</span>
+            <input type="text" id="p-city" placeholder="Bengaluru" />
+          </div>
+          <div class="err" id="e-city">City is required</div>
+        </div>
+        <div class="field">
+          <label>Locality / Area</label>
+          <div class="field-inner">
+            <span class="field-icon">📍</span>
+            <input type="text" id="p-locality" placeholder="Koramangala, HSR Layout..." />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="form-card">
+      <div class="card-title">Photos</div>
+      <div class="photo-drop" id="photo-drop" onclick="document.getElementById('photo-input').click()">
+        <div class="drop-icon">📷</div>
+        <p>Click to add photos</p>
+        <span>JPG, PNG — up to 5 photos, max 2MB each</span>
+        <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this.files)" />
+      </div>
+      <div class="photo-preview" id="photo-preview"></div>
+      <div class="err" id="e-photos"></div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="form-card">
+      <div class="card-title">Contact Info</div>
+      <div class="two-col">
+        <div class="field">
+          <label>Contact Name</label>
+          <div class="field-inner">
+            <span class="field-icon">👤</span>
+            <input type="text" id="p-contact-name" placeholder="Your name" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Contact Phone</label>
+          <div class="field-inner">
+            <span class="field-icon">📞</span>
+            <input type="tel" id="p-contact-phone" placeholder="+91 XXXXX XXXXX" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-submit" onclick="submitProperty()">🚀 &nbsp;Post Property</button>
+      <button class="btn-cancel" onclick="window.location.href='home.html'">Cancel</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span>✅</span>
+    <span id="toast-msg">Property posted!</span>
+  </div>
+
+  <footer><p>© 2025 <span>NestFind</span> — Buy, Sell &amp; Rent Properties with Ease</p></footer>
+
+  <script src="auth.js"></script>
+  <script>
+    NF.requireAuth();
+    NF.updateNav();
+
+    let uploadedPhotos = []; // array of base64 strings
+
+    function handlePhotos(files) {
+      const errEl = document.getElementById('e-photos');
+      errEl.style.display = 'none';
+      if (uploadedPhotos.length + files.length > 5) {
+        errEl.textContent = 'Max 5 photos allowed.';
+        errEl.style.display = 'block';
+        return;
+      }
+      Array.from(files).forEach(file => {
+        if (file.size > 2 * 1024 * 1024) {
+          errEl.textContent = `"${file.name}" is over 2MB. Please resize it.`;
+          errEl.style.display = 'block';
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => {
+          uploadedPhotos.push(e.target.result);
+          renderThumbs();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderThumbs() {
+      const preview = document.getElementById('photo-preview');
+      preview.innerHTML = uploadedPhotos.map((src, i) => `
+        <div class="photo-thumb">
+          <img src="${src}" alt="photo ${i+1}" />
+          <button class="del-photo" onclick="removePhoto(${i})">✕</button>
+        </div>`).join('');
+      document.getElementById('photo-drop').style.display = uploadedPhotos.length >= 5 ? 'none' : 'block';
+    }
+
+    function removePhoto(idx) {
+      uploadedPhotos.splice(idx, 1);
+      renderThumbs();
+      document.getElementById('photo-drop').style.display = 'block';
+    }
+
+    // Drag and drop support
+    const drop = document.getElementById('photo-drop');
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.style.borderColor = '#c9a84c'; });
+    drop.addEventListener('dragleave', () => { drop.style.borderColor = '#e0dbd2'; });
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      drop.style.borderColor = '#e0dbd2';
+      handlePhotos(e.dataTransfer.files);
+    });
+
+    function selectLT(btn) {
+      document.querySelectorAll('.lt-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function setErr(id, show) { document.getElementById(id)?.classList.toggle('show', show); }
+    function markErr(id, show) { document.getElementById(id)?.classList.toggle('error', show); }
+    function fe(inputId, errId, cond) { markErr(inputId, cond); setErr(errId, cond); return cond; }
+
+    function submitProperty() {
+      const title = document.getElementById('p-title').value.trim();
+      const type  = document.getElementById('p-type').value;
+      const price = document.getElementById('p-price').value;
+      const city  = document.getElementById('p-city').value.trim();
+
+      let bad = false;
+      if (fe('p-title','e-title', !title)) bad = true;
+      if (fe('p-type','e-type',   !type))  bad = true;
+      if (fe('p-price','e-price', !price || Number(price) <= 0)) bad = true;
+      if (fe('p-city','e-city',   !city)) bad = true;
+      if (bad) return;
+
+      const listingType = document.querySelector('.lt-btn.selected')?.dataset.lt || 'Sale';
+
+      const res = NF.postProperty({
+        title, type, listingType,
+        bhk:          document.getElementById('p-bhk').value,
+        price:        Number(price),
+        area:         document.getElementById('p-area').value || '',
+        description:  document.getElementById('p-desc').value.trim(),
+        city,
+        locality:     document.getElementById('p-locality').value.trim(),
+        contactName:  document.getElementById('p-contact-name').value.trim(),
+        contactPhone: document.getElementById('p-contact-phone').value.trim(),
+        photos:       uploadedPhotos,
+      });
+
+      if (!res.ok) {
+        const b = document.getElementById('top-banner');
+        b.textContent = res.msg;
+        b.className = 'banner error';
+        return;
+      }
+
+      document.getElementById('toast-msg').textContent = 'Property posted successfully!';
+      document.getElementById('toast').classList.add('show');
+      setTimeout(() => window.location.href = 'home.html', 1600);
+    }
+  </script>
+</body>
+</html>
